@@ -1,4 +1,29 @@
 ---
+# The value for state should be 'latest', at least when
+# install_packages_from_release is specified.
+#
+# If state is 'present', no change will be made or reported if the package is
+# already installed.  That seems good, since system updates are not the direct
+# responsibility of ansible.  However, that concern is minimal for two reasons.
+# 1.  A change should only be reported if this state is applied between apt
+# update and upgrade, on a day when the package is due for an upgrade, so it
+# should be a very rare occurrence.  2. Reporting a change sometimes is OK, as
+# long as running the deployment a second time reports no change.  Therefore,
+# it is not necessary or important to stick to 'present'.
+#
+# The problem with 'present' occurs when the release has been specified as "{{
+# os_release_name }}-backports" and the package is already installed from "{{
+# os_rele_name }}".  The package will not be upgraded, failing to achieve the
+# prescribed state of the system, despite reported success of deployment.  I am
+# not sure whether that constitutes a bug in the apt module, but it is the
+# behavior I have observed with ansible 2.19.4.  Specifying 'latest' causes the
+# package to be upgraded from the appropriate release.
+#
+# Note that the problem can occur, even when no changes have been made to the
+# ansible role in question, if the host undergoes an OS major version upgrade.
+# The role will still need to be applied after the upgrade, even then it will
+# only work correctly if state is set to 'latest'.
+
 - name:                         'install packages'
   apt:
     name:                       "{{ install_packages }}"
@@ -13,7 +38,8 @@
 - name:                         'install packages from release'
   apt:
     name:                       "{{ install_packages }}"
-    state:                      'present'
+    # See verbose comment at top.
+    state:                      'latest'
     default_release:            "{{ install_packages_from_release }}"
   register:                     install_packages_from_release_result
   retries:                      5
