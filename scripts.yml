@@ -4,3 +4,5 @@
     creates:            "{{ item.creates|default('/does/not/create/anything') }}"
   with_items:           "{{ scripts }}"
   register:             scripts_result
+  changed_when:         item.changed_when|default(scripts_result.changed)
+  failed_when:          item.failed_when|default(scripts_result.rc != 0)
