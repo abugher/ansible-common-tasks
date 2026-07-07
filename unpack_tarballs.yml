@@ -5,3 +5,4 @@
     dest:               "{{ item.dest }}"
     creates:            "{{ item.creates }}"
   with_items:           "{{ unpack_tarballs }}"
+  register:             unpack_tarballs_result

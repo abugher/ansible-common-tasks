@@ -2,6 +2,7 @@
 - script:               "{{ item.script }}"
   args:
     creates:            "{{ item.creates|default('/does/not/create/anything') }}"
+    chdir:              "{{ item.chdir|default('/') }}"
   with_items:           "{{ scripts }}"
   register:             scripts_result
   changed_when:         item.changed_when|default(scripts_result.changed)
